@@ -1,5 +1,3 @@
-import type { ChartPoint } from "@wind-forecast/shared";
-import { formatUtcLabel, formatUtcVerboseLabel } from "@wind-forecast/shared";
 import { useEffect, useState } from "react";
 import {
   CartesianGrid,
@@ -10,6 +8,9 @@ import {
   XAxis,
   YAxis
 } from "recharts";
+
+import type { ChartPoint } from "../lib/dataset";
+import { formatUtcLabel, formatUtcVerboseLabel } from "../lib/dataset";
 
 type WindChartProps = {
   data: ChartPoint[];

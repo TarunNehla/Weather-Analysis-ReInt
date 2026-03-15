@@ -6,10 +6,7 @@ export default tseslint.config(
   {
     ignores: [
       "**/dist/**",
-      "**/coverage/**",
-      "**/node_modules/**",
-      "**/playwright-report/**",
-      "**/test-results/**"
+      "**/node_modules/**"
     ]
   },
   js.configs.recommended,

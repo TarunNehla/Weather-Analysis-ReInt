@@ -41,13 +41,14 @@ export type ChartPoint = {
   publishTime?: string;
 };
 
+const DATASET_URL = "/data/wind-forecast-january-2024.json";
+
 export const DATASET_START_ISO = "2024-01-01T00:00:00Z";
 export const DATASET_END_ISO = "2024-01-31T23:30:00Z";
 export const DATASET_START_INPUT = "2024-01-01T00:00";
 export const DATASET_END_INPUT = "2024-01-31T23:30";
 export const DEFAULT_HORIZON_HOURS = 4;
 export const MAX_HORIZON_HOURS = 48;
-export const HALF_HOUR_SECONDS = 1800;
 export const INGEST_LOOKBACK_HOURS = 48;
 
 type ActualApiRow = {
@@ -62,6 +63,31 @@ type ForecastApiRow = {
   generation: number;
 };
 
+function isStaticDataset(value: unknown): value is StaticDataset {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<StaticDataset>;
+  return Array.isArray(candidate.actuals) && Array.isArray(candidate.forecasts);
+}
+
+export async function fetchStaticDataset(): Promise<StaticDataset> {
+  const response = await fetch(DATASET_URL);
+
+  if (!response.ok) {
+    throw new Error(`Dataset request failed with ${response.status}.`);
+  }
+
+  const payload = (await response.json()) as unknown;
+
+  if (!isStaticDataset(payload)) {
+    throw new Error("Dataset payload is malformed.");
+  }
+
+  return payload;
+}
+
 export function toUtcIsoString(value: Date | string): string {
   const date = typeof value === "string" ? new Date(value) : value;
 
@@ -70,22 +96,6 @@ export function toUtcIsoString(value: Date | string): string {
   }
 
   return date.toISOString().replace(".000Z", "Z");
-}
-
-export function formatUtcInputValue(isoString: string): string {
-  const date = new Date(isoString);
-
-  if (Number.isNaN(date.getTime())) {
-    throw new Error(`Invalid ISO datetime: ${isoString}`);
-  }
-
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-  const hour = String(date.getUTCHours()).padStart(2, "0");
-  const minute = String(date.getUTCMinutes()).padStart(2, "0");
-
-  return `${year}-${month}-${day}T${hour}:${minute}`;
 }
 
 export function parseUtcInputValue(value: string): string {
@@ -142,8 +152,6 @@ export function clampHorizonHours(value: number): number {
 }
 
 export function formatUtcLabel(isoString: string): string {
-  const date = new Date(isoString);
-
   return new Intl.DateTimeFormat("en-GB", {
     month: "short",
     day: "2-digit",
@@ -151,12 +159,10 @@ export function formatUtcLabel(isoString: string): string {
     minute: "2-digit",
     hour12: false,
     timeZone: "UTC"
-  }).format(date);
+  }).format(new Date(isoString));
 }
 
 export function formatUtcVerboseLabel(isoString: string): string {
-  const date = new Date(isoString);
-
   return new Intl.DateTimeFormat("en-GB", {
     year: "numeric",
     month: "short",
@@ -165,7 +171,7 @@ export function formatUtcVerboseLabel(isoString: string): string {
     minute: "2-digit",
     hour12: false,
     timeZone: "UTC"
-  }).format(date);
+  }).format(new Date(isoString));
 }
 
 export function getForecastHorizonHours(

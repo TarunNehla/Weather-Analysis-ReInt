@@ -1,4 +1,4 @@
-import type { ActualPoint, ChartPoint, ForecastPoint } from "@wind-forecast/shared";
+import type { ActualPoint, ChartPoint, ForecastPoint } from "./dataset";
 
 export function mergeChartData(
   actuals: ActualPoint[],

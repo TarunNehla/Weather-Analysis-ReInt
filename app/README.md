@@ -1,23 +1,19 @@
 # Wind Forecast Monitor
 
-Wind Forecast Monitor compares forecasted vs actual UK national wind generation for January 2024. The app is now frontend-only: it loads one checked-in JSON snapshot and queries that data in memory, so local setup is just install and run.
+Wind Forecast Monitor compares forecasted vs actual UK national wind generation for January 2024. The app is a single frontend at the repository root: it loads one checked-in JSON snapshot and queries that data in memory, so local setup is just install and run.
 
 ## Stack
 
 - React 19 + TypeScript + Vite
-- TanStack Query, Recharts, Tailwind CSS
-- Shared TypeScript package for UTC/date helpers and dataset selectors
-- Vitest for unit/UI tests and Playwright for the smoke test
+- Recharts, Tailwind CSS
+- One local dataset helper module for UTC/date logic and in-memory selection
 
 ## Repository layout
 
 ```text
-packages/
-  client/   React frontend and checked-in dataset snapshot
-  shared/   Shared types, UTC helpers, and static dataset selectors
-scripts/
-  refresh-static-data.ts   Maintainer script to rebuild the snapshot
-e2e/        Playwright smoke test
+src/       React frontend
+public/    Checked-in January 2024 dataset snapshot
+scripts/   Maintainer script to rebuild the snapshot
 ```
 
 ## Local setup
@@ -31,7 +27,7 @@ The app runs at `http://127.0.0.1:5173`.
 
 ## Data source
 
-Normal app usage does not call Elexon at runtime. The client reads the checked-in snapshot at [wind-forecast-january-2024.json](/Users/tarun/OneDrive/Desktop/assignment/app/packages/client/public/data/wind-forecast-january-2024.json).
+Normal app usage does not call Elexon at runtime. The client reads the checked-in snapshot at [wind-forecast-january-2024.json](/Users/tarun/OneDrive/Desktop/assignment/app/public/data/wind-forecast-january-2024.json).
 
 That snapshot was built from the current Elexon Insights Solution API at [data.elexon.co.uk](https://data.elexon.co.uk/bmrs/api/v1):
 
@@ -45,14 +41,12 @@ The legacy BMRS service was switched off on **May 31, 2024**, so the maintenance
 - `npm run dev` starts the Vite frontend.
 - `npm run build` builds the frontend bundle.
 - `npm run lint` runs ESLint.
-- `npm run test` runs the client Vitest suite.
-- `npm run test:e2e` runs the Playwright smoke test.
-- `npm run typecheck` runs TypeScript checks for `client` and `shared`.
+- `npm run typecheck` runs the client TypeScript check.
 - `npm run data:refresh` refetches Elexon data and rewrites the checked-in JSON snapshot.
 
 ## Deployment
 
-Deploy [packages/client](/Users/tarun/OneDrive/Desktop/assignment/app/packages/client) as a static SPA. `packages/client/vercel.json` already rewrites routes to `index.html` for client-side navigation.
+Deploy the repository root as a static SPA. [vercel.json](/Users/tarun/OneDrive/Desktop/assignment/app/vercel.json) already rewrites routes to `index.html` for client-side navigation.
 
 No environment variables are required for normal development or deployment.
 

@@ -1,32 +1,27 @@
 import {
+  useEffect,
+  useState
+} from "react";
+
+import { mergeChartData } from "../lib/chart";
+import {
   DATASET_END_INPUT,
   DATASET_START_INPUT,
   DEFAULT_HORIZON_HOURS,
   MAX_HORIZON_HOURS,
   clampHorizonHours,
+  fetchStaticDataset,
   formatUtcVerboseLabel,
   isValidRange,
-  parseUtcInputValue
-} from "@wind-forecast/shared";
-import {
-  Suspense,
-  lazy,
-  startTransition,
-  useDeferredValue,
-  useState
-} from "react";
-
-import { useWindData } from "../hooks/useWindData";
+  parseUtcInputValue,
+  selectActualPoints,
+  selectForecastPoints,
+  type StaticDataset
+} from "../lib/dataset";
 import { DateRangePicker } from "./DateRangePicker";
 import { HorizonSlider } from "./HorizonSlider";
 import { StatusCard } from "./StatusCard";
-
-const WindChart = lazy(async () => {
-  const module = await import("./WindChart");
-  return {
-    default: module.WindChart
-  };
-});
+import { WindChart } from "./WindChart";
 
 function getValidationMessage(startValue: string, endValue: string): string | null {
   try {
@@ -47,6 +42,46 @@ export function Dashboard() {
   const [startValue, setStartValue] = useState(DATASET_START_INPUT);
   const [endValue, setEndValue] = useState(DATASET_END_INPUT);
   const [horizonHours, setHorizonHours] = useState(DEFAULT_HORIZON_HOURS);
+  const [dataset, setDataset] = useState<StaticDataset | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDataset() {
+      try {
+        const payload = await fetchStaticDataset();
+
+        if (cancelled) {
+          return;
+        }
+
+        setDataset(payload);
+        setError(null);
+      } catch (loadError) {
+        if (cancelled) {
+          return;
+        }
+
+        setError(
+          loadError instanceof Error
+            ? loadError
+            : new Error("Unable to load the wind dataset.")
+        );
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadDataset();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const validationMessage = getValidationMessage(startValue, endValue);
   const enabled = validationMessage === null;
@@ -56,14 +91,24 @@ export function Dashboard() {
     : "2024-01-01T00:00:00Z";
   const endTime = enabled ? parseUtcInputValue(endValue) : "2024-01-01T00:30:00Z";
 
-  const { actuals, forecasts, chartData, isLoading, error } = useWindData({
-    startTime,
-    endTime,
-    horizonHours,
-    enabled
-  });
+  const actuals =
+    enabled && dataset
+      ? selectActualPoints(dataset, {
+          startTime,
+          endTime
+        })
+      : [];
 
-  const deferredChartData = useDeferredValue(chartData);
+  const forecasts =
+    enabled && dataset
+      ? selectForecastPoints(dataset, {
+          startTime,
+          endTime,
+          horizonHours
+        })
+      : [];
+
+  const chartData = mergeChartData(actuals, forecasts);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-3 py-5 sm:px-5 sm:py-8 md:px-8 md:py-10">
@@ -119,16 +164,8 @@ export function Dashboard() {
                 endValue={endValue}
                 min={DATASET_START_INPUT}
                 max={DATASET_END_INPUT}
-                onStartChange={(value) =>
-                  startTransition(() => {
-                    setStartValue(value);
-                  })
-                }
-                onEndChange={(value) =>
-                  startTransition(() => {
-                    setEndValue(value);
-                  })
-                }
+                onStartChange={setStartValue}
+                onEndChange={setEndValue}
               />
             </div>
           </div>
@@ -137,11 +174,7 @@ export function Dashboard() {
             value={horizonHours}
             min={0}
             max={MAX_HORIZON_HOURS}
-            onChange={(value) =>
-              startTransition(() => {
-                setHorizonHours(clampHorizonHours(value));
-              })
-            }
+            onChange={(value) => setHorizonHours(clampHorizonHours(value))}
           />
         </div>
 
@@ -158,22 +191,13 @@ export function Dashboard() {
               title="Dataset error"
               message={error.message || "Unable to load the wind dataset."}
             />
-          ) : deferredChartData.length === 0 ? (
+          ) : chartData.length === 0 ? (
             <StatusCard
               title="No chartable data"
               message="This range does not contain rows that satisfy the selected forecast horizon."
             />
           ) : (
-            <Suspense
-              fallback={
-                <StatusCard
-                  title="Rendering chart"
-                  message="Preparing the time-series visualization."
-                />
-              }
-            >
-              <WindChart data={deferredChartData} />
-            </Suspense>
+            <WindChart data={chartData} />
           )}
         </div>
 
@@ -197,7 +221,7 @@ export function Dashboard() {
               Combined timestamps
             </p>
             <p className="mt-2 text-3xl font-semibold text-white">
-              {deferredChartData.length}
+              {chartData.length}
             </p>
           </div>
         </div>

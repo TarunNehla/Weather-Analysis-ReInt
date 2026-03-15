@@ -7,13 +7,13 @@ import {
   normalizeActualApiRows,
   normalizeForecastApiRows,
   toUtcIsoString
-} from "@wind-forecast/shared";
+} from "../src/lib/dataset";
 
 const ELEXON_BASE_URL = "https://data.elexon.co.uk/bmrs/api/v1";
 const MAX_FUELHH_RANGE_DAYS = 7;
 const OUTPUT_PATH = resolve(
   process.cwd(),
-  "packages/client/public/data/wind-forecast-january-2024.json"
+  "public/data/wind-forecast-january-2024.json"
 );
 
 type ActualApiRow = {
@@ -150,4 +150,3 @@ main().catch((error: unknown) => {
   console.error(error);
   process.exitCode = 1;
 });
-
