@@ -109,7 +109,7 @@ export function WindChart({ data }: WindChartProps) {
   }, []);
 
   return (
-    <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.24)] sm:rounded-[2rem] sm:p-5">
+    <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.24)] sm:rounded-4xl sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold text-white sm:text-xl">
@@ -136,7 +136,7 @@ export function WindChart({ data }: WindChartProps) {
         </div>
       </div>
 
-      <div className="mt-4 h-[18rem] sm:h-[24rem] md:h-[29rem]">
+      <div className="mt-4 h-72 sm:h-96 md:h-116">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}

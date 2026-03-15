@@ -112,7 +112,7 @@ export function Dashboard() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-3 py-5 sm:px-5 sm:py-8 md:px-8 md:py-10">
-      <section className="rounded-[1.9rem] border border-white/10 bg-white/[0.04] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur sm:p-6 md:rounded-[2.25rem] md:p-8">
+      <section className="rounded-[1.9rem] border border-white/10 bg-white/4 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur sm:p-6 md:rounded-[2.25rem] md:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200/80">
@@ -128,7 +128,7 @@ export function Dashboard() {
             </p>
           </div>
 
-          <div className="w-full rounded-[1.5rem] border border-amber-300/20 bg-amber-300/10 px-4 py-4 text-sm text-amber-50 sm:w-auto sm:min-w-72 sm:rounded-[1.75rem] sm:px-5">
+          <div className="w-full rounded-3xl border border-amber-300/20 bg-amber-300/10 px-4 py-4 text-sm text-amber-50 sm:w-auto sm:min-w-72 sm:rounded-[1.75rem] sm:px-5">
             <div className="text-xs uppercase tracking-[0.18em] text-amber-100/70">
               Current view
             </div>
@@ -143,7 +143,7 @@ export function Dashboard() {
         </div>
 
         <div className="mt-6 grid gap-4 xl:mt-8 xl:grid-cols-[1.4fr_0.9fr] xl:gap-5">
-          <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/50 p-4 shadow-[0_16px_50px_rgba(0,0,0,0.18)] sm:rounded-[2rem] sm:p-5 md:p-6">
+          <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/50 p-4 shadow-[0_16px_50px_rgba(0,0,0,0.18)] sm:rounded-4xl sm:p-5 md:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold text-white">
